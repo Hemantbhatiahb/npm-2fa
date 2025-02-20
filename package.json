@@ -1,0 +1,32 @@
+{
+  "name": "2fauth",  
+  "version": "1.0.0",  
+  "description": "A plug-and-play authentication system with JWT, 2FA, and OAuth.",
+  "main": "index.js",  
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": ["authentication", "jwt", "2fa", "express", "oauth"], 
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hemantbhatiahb/npm-2fa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hemantbhatiahb/npm-2fa/issues"
+  },
+  "homepage": "https://github.com/Hemantbhatiahb/npm-2fa", 
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.5.0",
+    "bcryptjs": "^2.4.3",
+    "nodemailer": "^6.9.7",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
+  },
+  "author": "hemant1234",
+  "license": "MIT"
+}
