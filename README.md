@@ -50,16 +50,22 @@ app.listen(5000, () => console.log("Auth system running!"));
 
 ## 📡 API Endpoints  
 
-| Method  | Endpoint                | Description                     |
-|---------|-------------------------|---------------------------------|
-| **POST** | `/auth/register`        | Register a new user            |
-| **GET**  | `/auth/verify-email`    | Verify user email              |
-| **POST** | `/auth/login`           | User Login                     |
-| **POST** | `/auth/enable-2fa`      | Enable 2FA (Generates QR code) |
-| **POST** | `/auth/verify-2fa`      | Verify OTP for 2FA             |
-| **POST** | `/auth/logout`          | Logout the user                |
-| **POST** | `/auth/forgot-password` | Initiate password reset        |
-| **POST** | `/auth/reset-password`  | Reset password                 |
+| Method   | Endpoint                    | Description                    |
+|----------|-----------------------------|--------------------------------|
+| **POST** | `/auth/register`            | Register a new user            |
+| **GET**  | `/auth/verify-email`        | Verify user email              |
+| **GET**  | `/auth/resend-verification` | Verify user email              |
+| **POST** | `/auth/login`               | User Login                     |
+| **POST** | `/auth/enable-2fa`          | Enable 2FA (Generates QR code) |
+| **POST** | `/auth/disable-2fa`         | Disable 2FA                    |
+| **POST** | `/auth/verify-2fa`          | Verify OTP for 2FA             |
+| **POST** | `/auth/logout`              | Logout the user                |
+| **POST** | `/auth/forgot-password`     | Initiate password reset        |
+| **POST** | `/auth/reset-password`      | Reset password                 |
+| **PUT**  | `/auth/change-password`     | Change the current password    |
+| **GET**  | `/auth/current-user`        | Fetch Current User             |
+| **PUT**  | `/auth/update-user/:userId` | Update the current user        |
+
 
 ## 🚀 Usage Examples
 
