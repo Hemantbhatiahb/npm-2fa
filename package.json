@@ -1,6 +1,6 @@
 {
   "name": "2fauth",  
-  "version": "1.0.2",  
+  "version": "1.0.3",  
   "description": "A plug-and-play authentication system with JWT, 2FA, and OAuth.",
   "main": "index.js",  
   "scripts": {
