@@ -51,17 +51,17 @@ const loginUser = async (req, res) => {
 
     if (!user)
       return res
-        .status(400)
+        .status(200)
         .json({ success: false, message: "User not found" });
     if (!user.isVerified)
       return res
-        .status(400)
+        .status(200)
         .json({ success: false, message: "Email not verified" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res
-        .status(400)
+        .status(200)
         .json({ success: false, message: "Incorrect password" });
 
     if (user.is2FAEnabled) {
@@ -239,6 +239,161 @@ const resendVerificationEmail = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (!user.isVerified) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User is not verified" });
+    }
+
+    // Generate reset token
+    const resetToken = jwt.sign({ email }, process.env.JWT_SECRETKEY, {
+      expiresIn: "15m",
+    });
+
+    // Send password reset email
+    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const text = `<p>Click the link to reset your password: <a href="${resetLink}">Reset Password</a></p>`;
+
+    await sendEmail(email, "Reset Your Password", text);
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email.",
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully." });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Invalid or expired token. Try again" });
+  }
+};
+
+const getCurrentUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const user = await User.findById(userId).select("-password");
+    return res.send({
+      success: true,
+      message: "You are authenticated!",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res
+        .status(200)
+        .json({ success: false, message: "UserId missing" });
+    }
+    const newUser = await User.findByIdAndUpdate(userId, req.body, {
+      new: true,
+    });
+    if (!newUser) {
+      return res
+        .status(200)
+        .json({ success: false, message: "User not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { userId, oldPassword, newPassword } = req.body;
+    const user = await User.findById(userId);
+
+    if (!userId || !oldPassword || !newPassword) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Fields are missing" });
+    }
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect old password" });
+    }
+    user.password = newPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully!" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    return res
+      .status(200)
+      .json({ success: true, message: "Logged out successfully." });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Logout failed." });
+  }
+};
+
+
 module.exports = {
   registerUser,
   loginUser,
@@ -247,4 +402,10 @@ module.exports = {
   disable2FA,
   enable2FA,
   verify2FA,
+  resetPassword,
+  getCurrentUser,
+  updateUser,
+  changePassword,
+  logoutUser,
+  forgotPassword
 };
