@@ -25,7 +25,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "qrcode": "^1.5.4",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "express-rate-limit": "^8.7.5"
   },
   "author": "hemant1234",
   "license": "MIT"

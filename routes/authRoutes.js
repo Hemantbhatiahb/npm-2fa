@@ -15,6 +15,7 @@ const {
   changePassword,
 } = require("../controllers/authController");
 const auth = require("../middlewares/authMiddleware");
+const rateLimiter = require("../utils/rateLimitService");
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ router.post("/disable-2fa", auth, disable2FA);
 router.post("/verify-2fa", auth, verify2FA);
 
 router.get("/current-user", auth, getCurrentUser);
-router.put("/update-user/:userId", updateUser);
+router.put("/update-user/:userId", auth, updateUser);
 router.post("/logout", logoutUser);
 
 router.post("/forgot-password", forgotPassword);
