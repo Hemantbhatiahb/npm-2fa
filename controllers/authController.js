@@ -326,9 +326,30 @@ const updateUser = async (req, res) => {
         .status(200)
         .json({ success: false, message: "UserId missing" });
     }
-    const newUser = await User.findByIdAndUpdate(userId, req.body, {
-      new: true,
-    });
+    // The auth middleware sets req.body.userId from the verified JWT.
+    // A caller may only update their own account.
+    if (req.body.userId !== userId) {
+      return res
+        .status(403)
+        .json({ success: false, message: "You can only update your own account" });
+    }
+    // Allowlist only: name is the only user-editable profile field.
+    // email, password, isVerified, is2FAEnabled and twoFactorSecret must
+    // never be writable through this endpoint (previously req.body was
+    // passed straight to findByIdAndUpdate, giving unauthenticated
+    // account takeover). Email changes need a verified-email flow;
+    // 2FA changes go through the dedicated enable/disable-2fa routes.
+    const { name } = req.body;
+    if (typeof name !== "string" || !name.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "A valid name is required" });
+    }
+    const newUser = await User.findByIdAndUpdate(
+      userId,
+      { name: name.trim() },
+      { new: true }
+    ).select("-password -twoFactorSecret");
     if (!newUser) {
       return res
         .status(200)
